@@ -1,27 +1,16 @@
 import socket
-import termcolor
+import click
 
-def scan(target, ports):
-	print(termcolor.colored("\n[*] Scanning result for " + str(target)), 'blue')
-	for port in range(0, ports):
-		scan_port(target, port)
-
-def scan_port(ipaddress, port):
+def ScanPort(ip, port):
+	s = socket.socket()
 	try:
-		sock = socket.socket()
-		sock.connect((ipaddress, port))
-		print("Port Opened" + str(port))
+		s.connect((ip, port))
+		click.secho(f"[+] Port open {ip}:{port}", fg = "blue")
 	except:
-		#print("Port Closed" + str(port))
-		pass
+		click.secho(f"[-] Port closed {ip}:{port}", fg = "red")
 
-target = input("[*] Enter the target ipaddress to scan (you can go for multiple target also just separate them with a ,) ")
-ports = int(input("[*] Enter how many ports you want to scan "))
-
-if "," in target:
-	print("[*] Scanning the target!")
-	for ip_addr in target.split(","):
-		scan(ip_addr.strip(" "), ports)
-
-else:
-	scan(target, ports)
+if __name__ == "__main__":
+	ip = input("Enter the IP of victim: ")
+	click.secho("Scanning the IP...", fg = "green")
+	for Port in rnage(1, 65535):
+		ScanPort(ip, Port)
