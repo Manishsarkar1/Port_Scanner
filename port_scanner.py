@@ -4,10 +4,12 @@ import click
 def ScanPort(ip, port):
 	s = socket.socket()
 	try:
+		# s.timeout(2)
 		s.connect((ip, port))
 		click.secho(f"[+] Port open {ip}:{port}", fg = "blue")
 	except:
-		click.secho(f"[-] Port closed {ip}:{port}", fg = "red")
+		# click.secho(f"[-] Port closed {ip}:{port}", fg = "red")
+		pass
 
 if __name__ == "__main__":
 	ip = input("Enter the IP of victim: ")
