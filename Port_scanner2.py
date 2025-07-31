@@ -1,7 +1,8 @@
 from scapy.all import IP, TCP, sr1
 import threading
-import click
+from click import secho, style
 from tqdm import tqdm
+from socket import getservbyport
 
 open_ports = []
 
@@ -10,7 +11,7 @@ def syn_scan(ip, port):
     resp = sr1(pkt, timeout = 1, verbose = 0)
     if resp and resp.haslayer(TCP):
         if resp[TCP].flags == 0x12:
-            tqdm.write(click.style(f"[+] Port {port} open !", fg = 'cyan', bold = True))
+            tqdm.write(style(f"[+] Port {port} open !", fg = 'cyan', bold = True))
             open_ports.append(port)
 
 def Threaded_scan(ip, start_port = 1, end_port = 65535):
@@ -31,7 +32,7 @@ def Threaded_scan(ip, start_port = 1, end_port = 65535):
 
 if __name__ == "__main__":
     ip = input("Enter the IP of target : ").strip()
-    click.secho(f"[*] Starting SYN scan on {ip}... ", fg = "blue")
+    secho(f"[*] Starting SYN scan on {ip}... ", fg = "blue")
 
     Threaded_scan(ip)
-    click.secho(f"\nScan Complete. \nOpen ports : {open_ports}", fg = "yellow")
+    secho(f"\nScan Complete. \nOpen ports : {open_ports}", fg = "yellow")
