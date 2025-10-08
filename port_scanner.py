@@ -14,5 +14,5 @@ def ScanPort(ip, port):
 if __name__ == "__main__":
 	ip = input("Enter the IP of victim: ")
 	click.secho("Scanning the IP...", fg = "green")
-	for Port in range(1, 65535):
+	for Port in range(19, 3000):
 		ScanPort(ip, Port)
