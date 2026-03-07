@@ -6,6 +6,7 @@ from pathlib import Path
 from scanner_framework.engine import ConnectScanEngine
 from scanner_framework.models import ScanResult
 from scanner_framework.parsers import parse_ports, parse_targets
+from scanner_framework.syn_engine import SynScanEngine
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -15,6 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("-t", "--targets", required=True, help="Comma list: IP, hostname, or CIDR.")
     parser.add_argument("-p", "--ports", default="1-1024", help="Ports expression, e.g. 22,80,443,8000-8100")
+    parser.add_argument("--scan-type", choices=["connect", "syn"], default="connect", help="Scan method")
     parser.add_argument("--timeout", type=float, default=1.0, help="Socket timeout in seconds")
     parser.add_argument("--workers", type=int, default=200, help="Parallel worker count")
     parser.add_argument("--show-closed", action="store_true", help="Include closed/filtered results")
@@ -45,14 +47,8 @@ def print_report(results: list[ScanResult]) -> None:
             )
 
 
-def main() -> None:
-    parser = build_parser()
-    args = parser.parse_args()
-
-    targets = parse_targets(args.targets)
-    ports = parse_ports(args.ports)
-
-    engine = ConnectScanEngine(
+def build_engine(args: argparse.Namespace, targets: list[str], ports: list[int]):
+    common = dict(
         targets=targets,
         ports=ports,
         timeout=args.timeout,
@@ -61,6 +57,19 @@ def main() -> None:
         detect_version=args.version_detect,
         include_closed=args.show_closed,
     )
+    if args.scan_type == "syn":
+        return SynScanEngine(**common)
+    return ConnectScanEngine(**common)
+
+
+def main() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    targets = parse_targets(args.targets)
+    ports = parse_ports(args.ports)
+
+    engine = build_engine(args, targets, ports)
     results = engine.run()
     print_report(results)
 

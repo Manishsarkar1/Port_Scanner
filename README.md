@@ -5,6 +5,7 @@ Pure-Python port scanning framework without using `nmap` binary or nmap wrappers
 ## Features
 - Modular scanner framework structure (easy to extend)
 - TCP connect scan engine
+- TCP SYN scan engine (`--scan-type syn`)
 - Target parsing: single IP, hostname, comma lists, CIDR
 - Port parsing: single values and ranges
 - Parallel scanning with configurable worker count
@@ -14,7 +15,8 @@ Pure-Python port scanning framework without using `nmap` binary or nmap wrappers
 
 ## Quick Start
 1. Install Python 3.10+
-2. Run:
+2. (Optional for SYN mode) install scapy: `pip install scapy`
+3. Run:
 
 ```bash
 python main.py -t 127.0.0.1 -p 1-1024
@@ -22,21 +24,23 @@ python main.py -t 127.0.0.1 -p 1-1024
 
 ## Examples
 ```bash
-# Scan top common ports
+# Connect scan (default)
 python main.py -t scanme.nmap.org -p 22,80,443,3306,5432
 
-# Detect service versions
+# SYN scan (typically requires admin/root privileges)
+python main.py -t 192.168.1.10 -p 1-1024 --scan-type syn
+
+# Detect service versions on open ports
 python main.py -t 192.168.1.10 -p 21,22,25,80,110,143,3306,5432,6379 --version-detect
 
-# Show closed ports too + save JSON
-python main.py -t 192.168.1.0/28 -p 1-200 --show-closed --json-out reports/scan.json
+# SYN + version detect + JSON output
+python main.py -t 192.168.1.10 -p 22,80,443 --scan-type syn --version-detect --json-out reports/scan.json
 ```
 
 ## Version Detection Coverage (Current)
 - SSH, HTTP, FTP, SMTP, POP3, IMAP, Redis, MySQL, PostgreSQL (best-effort probes)
 
 ## Next Extensions
-- SYN scan engine using raw sockets
 - UDP scan engine
 - OS fingerprinting module
 - Service/version detection plugins
