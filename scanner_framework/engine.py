@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from scanner_framework.models import ScanResult
 from scanner_framework.services import COMMON_TCP_SERVICES
+from scanner_framework.versioning import detect_service_version
 
 
 class ConnectScanEngine:
@@ -14,6 +15,7 @@ class ConnectScanEngine:
         timeout: float = 1.0,
         workers: int = 200,
         grab_banner: bool = False,
+        detect_version: bool = False,
         include_closed: bool = False,
     ) -> None:
         self.targets = targets
@@ -21,6 +23,7 @@ class ConnectScanEngine:
         self.timeout = timeout
         self.workers = workers
         self.grab_banner = grab_banner
+        self.detect_version = detect_version
         self.include_closed = include_closed
 
     @staticmethod
@@ -59,13 +62,29 @@ class ConnectScanEngine:
 
         latency = (time.perf_counter() - start) * 1000
         service = COMMON_TCP_SERVICES.get(port)
-        banner = self._banner(ip, port) if (state == "open" and self.grab_banner) else None
+        banner = None
+        version = None
+
+        if state == "open" and self.detect_version:
+            detected_service, detected_version = detect_service_version(
+                ip=ip,
+                port=port,
+                timeout=self.timeout,
+                service_hint=service,
+            )
+            service = detected_service or service
+            version = detected_version
+            banner = detected_version if self.grab_banner else None
+        elif state == "open" and self.grab_banner:
+            banner = self._banner(ip, port)
+
         return ScanResult(
             target=target,
             ip=ip,
             port=port,
             state=state,
             service=service,
+            version=version,
             banner=banner,
             latency_ms=round(latency, 2),
         )
@@ -91,6 +110,7 @@ class ConnectScanEngine:
                             port=0,
                             state="unresolved",
                             service=None,
+                            version=None,
                             banner=None,
                             latency_ms=None,
                         )

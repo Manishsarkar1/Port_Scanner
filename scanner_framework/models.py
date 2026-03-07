@@ -9,6 +9,7 @@ class ScanResult:
     port: int
     state: str
     service: str | None = None
+    version: str | None = None
     banner: str | None = None
     latency_ms: float | None = None
 

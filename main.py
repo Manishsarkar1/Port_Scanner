@@ -19,6 +19,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--workers", type=int, default=200, help="Parallel worker count")
     parser.add_argument("--show-closed", action="store_true", help="Include closed/filtered results")
     parser.add_argument("--banner", action="store_true", help="Try grabbing banner from open ports")
+    parser.add_argument("--version-detect", action="store_true", help="Probe services to detect version strings")
     parser.add_argument("--json-out", type=Path, help="Write JSON report to this file path")
     return parser
 
@@ -35,9 +36,13 @@ def print_report(results: list[ScanResult]) -> None:
                 print("  [!] unresolved hostname")
                 continue
             service = row.service if row.service else "unknown"
+            version = row.version if row.version else "-"
             banner = f" | banner={row.banner}" if row.banner else ""
             latency = f"{row.latency_ms}ms" if row.latency_ms is not None else "-"
-            print(f"  {row.port:>5}/tcp  {row.state:<8}  service={service:<12} latency={latency}{banner}")
+            print(
+                f"  {row.port:>5}/tcp  {row.state:<8}  service={service:<12} "
+                f"version={version} latency={latency}{banner}"
+            )
 
 
 def main() -> None:
@@ -53,6 +58,7 @@ def main() -> None:
         timeout=args.timeout,
         workers=args.workers,
         grab_banner=args.banner,
+        detect_version=args.version_detect,
         include_closed=args.show_closed,
     )
     results = engine.run()
