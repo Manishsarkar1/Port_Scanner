@@ -15,8 +15,9 @@ Pure-Python port scanning framework without using `nmap` binary or nmap wrappers
 
 ## Quick Start
 1. Install Python 3.10+
-2. (Optional for SYN mode) install scapy: `pip install scapy`
-3. Run:
+2. Clone the repo and enter it: `git clone https://github.com/Manishsarkar1/Port_Scanner.git && cd Port_Scanner`
+3. (Optional for SYN mode) install scapy: `pip install scapy`
+4. Run:
 
 ```bash
 python main.py -t 127.0.0.1 -p 1-1024
